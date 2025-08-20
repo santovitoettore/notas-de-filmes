@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Notas de Filmes — Dark Laranja/Vermelho</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+:root{
+  --bg:#0f0f10;
+  --card:#171717;
+  --text:#ececec;
+  --orange:#ff6a00;
+  --orange-2:#ff8c3a;
+  --red:#ff3b3b;
+  --muted:#9a9a9a;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  padding:20px;
+  min-height:100vh;
+}
+.container{ max-width:880px; margin:0 auto; }
+header{ text-align:center; margin-bottom:18px; }
+h1{ margin:0; color:var(--orange); font-size:1.6rem; letter-spacing:0.4px; }
+p.lead{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:0.95rem;
+  display:none;
+}
+.card{ background:var(--card); border-radius:10px; padding:14px; margin-top:18px; box-shadow:0 6px 20px rgba(0,0,0,0.6); }
+.inputs{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:center; }
+input[type="text"], input[type="number"]{
+  background:#0b0b0b;
+  color:var(--text);
+  border:1px solid rgba(255,255,255,0.04);
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:15px;
+  outline:none;
+  min-width:120px;
+}
+input[type="text"]{min-width:220px}
+.btn{
+  padding:10px 14px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+  letter-spacing:0.2px;
+}
+.btn-primary{ background:var(--orange); color:#0b0b0b; }
+.btn-primary:active{transform:translateY(1px)}
+.resultado{
+  margin-top:12px;
+  text-align:center;
+  font-weight:700;
+  color:var(--orange-2);
+}
+.lista-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.lista-title h2{
+  margin:0;
+  font-size:1.05rem;
+  color:var(--text);
+}
+.lista{
+  margin-top:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.item{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px;
+  background:#101010;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.02);
+}
+.item .left{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  align-items:flex-start;
+  min-width:0;
+}
+.film-name{
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:380px;
+}
+.film-score{
+  color:var(--orange-2);
+  font-weight:700;
+  margin-left:8px;
+  min-width:56px;
+  text-align:right;
+}
+.acoes{ display:flex; gap:8px; align-items:center; }
+.btn-edit{ background:var(--orange); color:#080808; padding:6px 10px; border-radius:7px; font-size:13px; }
+.btn-delete{ background:var(--red); color:white; padding:6px 10px; border-radius:7px; font-size:13px; }
+.btn-photo{ background: var(--orange-2); color: #080808; padding: 6px 10px; border-radius: 7px; font-size: 13px; }
+.btn-delete-photo{ background: var(--red); color: white; padding: 4px 8px; border-radius: 5px; font-size: 12px; margin-top: 4px; }
+.film-photo{
+  max-width: 150px;
+  height: auto;
+  border-radius: 6px;
+  display: block;
+}
+footer{
+  margin-top:18px;
+  color:var(--muted);
+  font-size:13px;
+  text-align:center;
+}
+@media (max-width:640px){
+  .inputs{flex-direction:column; align-items:stretch}
+  input[type="text"]{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Notas de Filmes</h1>
+    <p class="lead">Tema escuro com destaques em laranja e vermelho. As notas são salvas no navegador. Pressione Enter para salvar.</p>
+  </header>
+
+  <div class="card">
+    <div class="inputs">
+      <input id="nomeFilme" type="text" placeholder="Nome do filme" autocomplete="off" />
+      <input id="notaDel" type="text" placeholder="Nota da Del" inputmode="decimal" />
+      <input id="notaEttore" type="text" placeholder="Nota do Ettore" inputmode="decimal" />
+      <button id="btnSalvar" class="btn btn-primary">Salvar</button>
+    </div>
+    <div id="resultado" class="resultado" aria-live="polite" style="display:none"></div>
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <div class="lista-title">
+      <h2>Filmes Salvos</h2>
+    </div>
+    <div id="lista" class="lista"></div>
+  </div>
+</div>
+
+<script>
+// ----- estado -----
+let filmes = JSON.parse(localStorage.getItem('filmes')) || [];
+let editIndex = -1;
+
+// elementos
+const nomeEl = document.getElementById('nomeFilme');
+const notaDelEl = document.getElementById('notaDel');
+const notaEttoreEl = document.getElementById('notaEttore');
+const btnSalvar = document.getElementById('btnSalvar');
+const resultadoEl = document.getElementById('resultado');
+const listaEl = document.getElementById('lista');
+
+// formatação
+function parseNota(str){
+  if (typeof str !== 'string') return NaN;
+  const normalized = str.trim().replace(',', '.');
+  const n = parseFloat(normalized);
+  return isNaN(n) ? NaN : n;
+}
+
+function salvarLocal(){
+  localStorage.setItem('filmes', JSON.stringify(filmes));
+}
+
+function limparInputs(){
+  nomeEl.value = '';
+  notaDelEl.value = '';
+  notaEttoreEl.value = '';
+  editIndex = -1;
+  btnSalvar.innerText = 'Salvar';
+}
+
+function mostrarResultado(text){
+  if(!text){
+    resultadoEl.style.display='none';
+    return;
+  }
+  resultadoEl.innerText = text;
+  resultadoEl.style.display = 'block';
+  setTimeout(()=> resultadoEl.style.display='none', 3500);
+}
+
+function calcularESalvar(){
+  const nome = nomeEl.value.trim();
+  const n1 = parseNota(notaDelEl.value);
+  const n2 = parseNota(notaEttoreEl.value);
+  if (!nome || isNaN(n1) || isNaN(n2)) {
+    mostrarResultado('Preencha nome e as duas notas corretamente.');
+    return;
+  }
+  const media = (n1 + n2) / 2; // sem arredondar
+  if (editIndex >= 0){
+    filmes[editIndex] = { ...filmes[editIndex], nome, notaDel: n1, notaEttore: n2, media: media };
+    mostrarResultado(`Atualizado: ${nome} — ${media}`);
+  } else {
+    filmes.push({ nome, notaDel: n1, notaEttore: n2, media: media });
+    mostrarResultado(`Salvo: ${nome} — ${media}`);
+  }
+  salvarLocal();
+  renderizarLista();
+  limparInputs();
+}
+
+// Função para adicionar foto
+function adicionarFoto(idx) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = () => {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      filmes[idx].foto = reader.result;
+      salvarLocal();
+      renderizarLista();
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+// Função para excluir foto
+function excluirFoto(idx) {
+  delete filmes[idx].foto;
+  salvarLocal();
+  renderizarLista();
+}
+
+function renderizarLista(){
+  listaEl.innerHTML = '';
+  if (filmes.length === 0){
+    const vazio = document.createElement('div');
+    vazio.style.color = 'var(--muted)';
+    vazio.style.padding = '10px';
+    vazio.textContent = 'Nenhum filme salvo ainda.';
+    listaEl.appendChild(vazio);
+    return;
+  }
+  filmes.forEach((f, idx) => {
+    const item = document.createElement('div');
+    item.className = 'item';
+
+    const left = document.createElement('div');
+    left.className = 'left';
+
+    // Nome e nota
+    const nomeNota = document.createElement('div');
+    nomeNota.style.display = 'flex';
+    nomeNota.style.alignItems = 'center';
+    const nomeSpan = document.createElement('div');
+    nomeSpan.className = 'film-name';
+    nomeSpan.title = f.nome;
+    nomeSpan.textContent = f.nome;
+    const notaSpan = document.createElement('div');
+    notaSpan.className = 'film-score';
+    notaSpan.textContent = `${f.media}  |  Del: ${f.notaDel}  |  Ettore: ${f.notaEttore}`;
+    nomeNota.appendChild(nomeSpan);
+    nomeNota.appendChild(notaSpan);
+    left.appendChild(nomeNota);
+
+    // Foto, se existir
+    if (f.foto) {
+      const img = document.createElement('img');
+      img.src = f.foto;
+      img.alt = `Foto de ${f.nome}`;
+      img.className = 'film-photo';
+      left.appendChild(img);
+
+      const btnDelPhoto = document.createElement('button');
+      btnDelPhoto.className = 'btn-delete-photo';
+      btnDelPhoto.innerText = 'Excluir Foto';
+      btnDelPhoto.onclick = () => excluirFoto(idx);
+      left.appendChild(btnDelPhoto);
+    }
+
+    const acoes = document.createElement('div');
+    acoes.className = 'acoes';
+    const btnEdit = document.createElement('button');
+    btnEdit.className = 'btn-edit';
+    btnEdit.innerText = 'Editar';
+    btnEdit.onclick = () => {
+      nomeEl.value = f.nome || '';
+      notaDelEl.value = (f.notaDel !== undefined) ? String(f.notaDel).replace('.', ',') : '';
+      notaEttoreEl.value = (f.notaEttore !== undefined) ? String(f.notaEttore).replace('.', ',') : '';
+      editIndex = idx;
+      btnSalvar.innerText = 'Atualizar';
+      nomeEl.focus();
+    };
+
+    const btnPhoto = document.createElement('button');
+    btnPhoto.className = 'btn-photo';
+    btnPhoto.innerText = 'Adicionar Foto';
+    btnPhoto.onclick = () => adicionarFoto(idx);
+
+    const btnDel = document.createElement('button');
+    btnDel.className = 'btn-delete';
+    btnDel.innerText = 'Excluir';
+    btnDel.onclick = () => {
+      filmes.splice(idx, 1);
+      salvarLocal();
+      renderizarLista();
+    };
+
+    acoes.appendChild(btnEdit);
+    acoes.appendChild(btnPhoto);
+    acoes.appendChild(btnDel);
+
+    item.appendChild(left);
+    item.appendChild(acoes);
+    listaEl.appendChild(item);
+  });
+}
+
+// eventos
+btnSalvar.addEventListener('click', calcularESalvar);
+[nomeEl, notaDelEl, notaEttoreEl].forEach(el => {
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      calcularESalvar();
+    }
+  });
+});
+
+// inicia
+renderizarLista();
+</script>
+</body>
+</html>

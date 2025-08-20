@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: hsl(240, 6%, 6%);
+  --card: hsl(0, 0%, 9%);
+  --text: hsl(0, 0%, 93%);
+  --orange: hsl(25, 100%, 50%);
+  --orange-2: hsl(25, 100%, 62%);
+  --red: hsl(0, 100%, 62%);
+  --muted: hsl(0, 0%, 60%);
+  --input-bg: hsl(240, 7%, 4%);
+  --item-bg: hsl(0, 0%, 6%);
+  
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card-bg: var(--card);
+  --card-foreground: var(--text);
+  --popover: var(--card);
+  --popover-foreground: var(--text);
+  --primary: var(--orange);
+  --primary-foreground: hsl(240, 7%, 4%);
+  --secondary: var(--text);
+  --secondary-foreground: var(--bg);
+  --muted-bg: hsl(0, 0%, 9%);
+  --muted-foreground: var(--muted);
+  --accent: hsl(25, 100%, 7%);
+  --accent-foreground: var(--orange);
+  --destructive: var(--red);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(0, 0%, 15%);
+  --input: var(--input-bg);
+  --ring: var(--orange);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    @apply antialiased;
+  }
+
+  .container {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  .movie-card {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 18px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255, 106, 0, 0.1);
+    border: 1px solid rgba(255, 106, 0, 0.1);
+  }
+
+  .movie-input {
+    background: var(--input-bg);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.04);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    min-width: 120px;
+    transition: all 0.3s ease;
+  }
+
+  .movie-input:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 2px rgba(255, 106, 0, 0.2), 0 0 8px rgba(255, 106, 0, 0.15);
+  }
+
+  .movie-input-text {
+    min-width: 220px;
+  }
+
+  .movie-btn {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    transition: all 0.3s ease;
+  }
+
+  .movie-btn-primary {
+    background: var(--orange);
+    color: hsl(240, 7%, 4%);
+    box-shadow: 0 0 15px rgba(255, 106, 0, 0.3);
+  }
+
+  .movie-btn-primary:hover {
+    box-shadow: 0 0 20px rgba(255, 106, 0, 0.5);
+    transform: translateY(-1px);
+  }
+
+  .movie-btn-primary:active {
+    transform: translateY(1px);
+  }
+
+  .movie-result {
+    margin-top: 12px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--orange-2);
+    text-shadow: 0 0 8px rgba(255, 140, 58, 0.4);
+  }
+
+  .movie-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px;
+    background: var(--item-bg);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.02);
+    transition: all 0.3s ease;
+  }
+
+  .movie-item:hover {
+    border-color: rgba(255, 106, 0, 0.2);
+    box-shadow: 0 0 12px rgba(255, 106, 0, 0.1);
+  }
+
+  .movie-title {
+    margin: 0;
+    color: var(--orange);
+    font-size: 1.6rem;
+    letter-spacing: 0.4px;
+    text-shadow: 0 0 10px rgba(255, 106, 0, 0.3);
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .movie-photo {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 2px solid rgba(255, 106, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .movie-photo:hover {
+    border-color: var(--orange);
+    box-shadow: 0 0 12px rgba(255, 106, 0, 0.3);
+  }
+
+  .movie-btn-edit {
+    background: var(--orange);
+    color: #080808;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 13px;
+    box-shadow: 0 0 8px rgba(255, 106, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .movie-btn-edit:hover {
+    box-shadow: 0 0 12px rgba(255, 106, 0, 0.4);
+  }
+
+  .movie-btn-delete {
+    background: var(--red);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 13px;
+    box-shadow: 0 0 8px rgba(255, 59, 59, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .movie-btn-delete:hover {
+    box-shadow: 0 0 12px rgba(255, 59, 59, 0.4);
+  }
+
+  .movie-btn-photo {
+    background: var(--orange-2);
+    color: #080808;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 13px;
+    box-shadow: 0 0 8px rgba(255, 140, 58, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .movie-btn-photo:hover {
+    box-shadow: 0 0 12px rgba(255, 140, 58, 0.4);
+  }
+
+  .movie-btn-delete-photo {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 8px rgba(255, 59, 59, 0.4);
+  }
+}
+
+@media (max-width: 640px) {
+  .movie-input-text {
+    width: 100%;
+  }
+}
