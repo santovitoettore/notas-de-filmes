@@ -5,10 +5,10 @@
       "use": "@vercel/node"
     },
     {
-      "src": "client/index.html",
+      "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "client/dist"
+        "distDir": "dist"
       }
     }
   ],
@@ -19,7 +19,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "client/index.html"
+      "dest": "client/dist/index.html"
     }
   ]
 }
